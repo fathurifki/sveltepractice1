@@ -8,16 +8,22 @@ var app = (function (internal) {
 	const file = "src/App.svelte";
 
 	function create_fragment(ctx) {
-		var h1, t0, t1, t2;
+		var h1, t0, t1, t2, t3, t4, button, dispose;
 
 		return {
 			c: function create() {
 				h1 = internal.element("h1");
 				t0 = internal.text("Hello ");
-				t1 = internal.text(ctx.name);
-				t2 = internal.text("!");
+				t1 = internal.text(name);
+				t2 = internal.text("!, my age is ");
+				t3 = internal.text(ctx.age);
+				t4 = internal.space();
+				button = internal.element("button");
+				button.textContent = "Change Age";
 				h1.className = "svelte-i7qo5m";
-				internal.add_location(h1, file, 10, 0, 82);
+				internal.add_location(h1, file, 15, 0, 142);
+				internal.add_location(button, file, 16, 0, 182);
+				dispose = internal.listen(button, "click", ctx.incrementAge);
 			},
 
 			l: function claim(nodes) {
@@ -29,11 +35,14 @@ var app = (function (internal) {
 				internal.append(h1, t0);
 				internal.append(h1, t1);
 				internal.append(h1, t2);
+				internal.append(h1, t3);
+				internal.insert(target, t4, anchor);
+				internal.insert(target, button, anchor);
 			},
 
 			p: function update(changed, ctx) {
-				if (changed.name) {
-					internal.set_data(t1, ctx.name);
+				if (changed.age) {
+					internal.set_data(t3, ctx.age);
 				}
 			},
 
@@ -43,48 +52,37 @@ var app = (function (internal) {
 			d: function destroy(detaching) {
 				if (detaching) {
 					internal.detach(h1);
+					internal.detach(t4);
+					internal.detach(button);
 				}
+
+				dispose();
 			}
 		};
 	}
 
+	let name = 'Rifki';
+
 	function instance($$self, $$props, $$invalidate) {
-		let { name } = $$props;
+		
+		let age = 25;
 
-		$$self.$set = $$props => {
-			if ('name' in $$props) $$invalidate('name', name = $$props.name);
-		};
+		function incrementAge(){
+			$$invalidate('age', age += 1);
+		}
 
-		return { name };
+		return { age, incrementAge };
 	}
 
 	class App extends internal.SvelteComponentDev {
 		constructor(options) {
 			super(options);
-			internal.init(this, options, instance, create_fragment, internal.safe_not_equal, ["name"]);
-
-			const { ctx } = this.$$;
-			const props = options.props || {};
-			if (ctx.name === undefined && !('name' in props)) {
-				console.warn("<App> was created without expected prop 'name'");
-			}
-		}
-
-		get name() {
-			throw new Error("<App>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
-		}
-
-		set name(value) {
-			throw new Error("<App>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+			internal.init(this, options, instance, create_fragment, internal.safe_not_equal, []);
 		}
 	}
 
 	const app = new App({
 		target: document.body,
-		props: {
-			name: 'world',
-			age: '25',
-		}
 	});
 
 	return app;
